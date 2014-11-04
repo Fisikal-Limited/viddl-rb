@@ -12,7 +12,7 @@ class Vimeo < PluginBase
     video_url = "http://player.vimeo.com/video/#{vimeo_id}"
     video_page = open(video_url).read
 
-    info_json = video_page[/a=(\{.+?);/, 1]
+    info_json = video_page[/a=(\{[^;]+\});/, 1]
     parsed = MultiJson.load(info_json)
 
     files = parsed["request"]["files"] 
