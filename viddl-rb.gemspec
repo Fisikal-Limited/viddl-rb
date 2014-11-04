@@ -18,7 +18,7 @@ Gem::Specification.new do |s|
   s.add_dependency "jruby-openssl" if RUBY_PLATFORM == "java"
   s.add_dependency('nokogiri', '~> 1.6.0')
   s.add_dependency('progressbar', '~> 0.21')
-  s.add_dependency('multi_json', '~> 1.10.0')
+  s.add_dependency('multi_json', '~> 1.7.5')
   s.add_development_dependency('rake', '~> 10.1.0')
   s.add_development_dependency('rest-client', '~> 1.6.7')
   s.add_development_dependency('minitest')
