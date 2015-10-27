@@ -10,9 +10,13 @@ class Vimeo < PluginBase
     vimeo_id = url[/\d{7,}/]
 
     video_url = "http://player.vimeo.com/video/#{vimeo_id}"
-    video_page = open(video_url).read
+    video_page = RestClient.get(video_url)
 
-    info_json = video_page[/a=(\{[^;]+\});/, 1]
+    info_json = find_player_info(video_page)
+    unless info_json
+      raise CouldNotDownloadVideoError, "Could not find video urls\n" +
+          "Please report this bug at github.com/rb2k/viddl-rb so it can be fixed!"
+    end
     parsed = MultiJson.load(info_json)
 
     files = parsed["request"]["files"] 
@@ -33,5 +37,26 @@ class Vimeo < PluginBase
 
     [{:url => download_url, :name => file_name}]
   end
-end
 
+  def self.find_player_info(string)
+    # Based on http://stackoverflow.com/questions/25273624/ruby-regex-that-will-find-a-json-object-in-the-middle-of-a-string
+    # Does also return some JSON primitives, so it not guaranteed that we only get objects, but we do not care as we are only
+    # searching for one specific match that we know is a JSON object
+    re = /
+          (?:
+            (?<number>  -?(?=[1-9]|0(?!\d))\d+(?:\.\d+)?(?:[eE][+-]?\d+)?)
+            (?<boolean> true | false | null )
+            (?<string>  " (?:[^"\\]++ | \\ ["\\bfnrt\/] | \\ u [0-9a-f]{4} )* " )
+            (?<array>   \[ (?> \g<json> (?: , \g<json> )* )? \s* \] )
+            (?<pair>    \s* \g<string> \s* : \g<json> )
+            (?<object>  \{ (?> \g<pair> (?: , \g<pair> )* )? \s* \} )
+            (?<json>    \s* (?> \g<number> | \g<boolean> | \g<string> | \g<array> | \g<object> ) \s*)
+          ){0}
+          \g<object>
+        /uix
+
+
+    string.scan(re).flatten.compact.select{|s| s.include? "vimeocdn.com"}.first
+  end
+
+end
