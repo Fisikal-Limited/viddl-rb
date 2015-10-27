@@ -9,7 +9,7 @@ class Vimeo < PluginBase
     #the vimeo ID consists of 7 decimal numbers or more in the URL
     vimeo_id = url[/\d{7,}/]
 
-    video_url = "http://player.vimeo.com/video/#{vimeo_id}"
+    video_url = "https://player.vimeo.com/video/#{vimeo_id}"
     video_page = RestClient.get(video_url)
 
     info_json = find_player_info(video_page)
