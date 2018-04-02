@@ -4,7 +4,7 @@ class Vimeo < PluginBase
   def self.matches_provider?(url)
     url.include?("vimeo.com")
   end
-  
+
   def self.get_urls_and_filenames(url, options = {})
     #the vimeo ID consists of 7 decimal numbers or more in the URL
     vimeo_id = url[/\d{7,}/]
@@ -27,7 +27,7 @@ class Vimeo < PluginBase
 
     best_file = files["progressive"].select{|p| p["mime"] == "video/mp4"}.sort_by { |p| p["width"]}.last
     download_url = best_file["url"]
-    extension = download_url[/.+?(\.[\w\d]+?)\?/, 1]
+    extension = download_url[/.+?(\.[\w\d]+?)(\?|\z)/, 1]
     file_name = PluginBase.make_filename_safe(parsed["video"]["title"]) + extension
 
     [{:url => download_url, :name => file_name}]
